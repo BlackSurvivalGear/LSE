@@ -89,16 +89,8 @@ window.addEventListener('scroll',()=>{
 
 // Client Portal placeholder: the future Google Sites/Gmail client portal will be connected here.
 (()=>{
-  const nav=document.querySelector('.nav');
-  if(!nav||nav.querySelector('[data-client-portal]'))return;
-
-  const portalButton=document.createElement('a');
-  portalButton.href='#';
-  portalButton.className='nav-cta';
-  portalButton.dataset.clientPortal='true';
-  portalButton.textContent='Client Portal';
-  portalButton.setAttribute('aria-haspopup','dialog');
-  nav.insertBefore(portalButton,nav.querySelector('.nav-cta'));
+  const portalButton=document.querySelector('[data-client-portal]');
+  if(!portalButton)return;
 
   const overlay=document.createElement('div');
   overlay.setAttribute('role','dialog');
