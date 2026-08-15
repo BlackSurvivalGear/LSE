@@ -113,6 +113,11 @@ window.addEventListener('scroll',()=>{
   const open=(event)=>{
     event.preventDefault();
     event.stopPropagation();
+    if(nav)nav.classList.remove('open');
+    if(menuToggle){
+      menuToggle.setAttribute('aria-expanded','false');
+      menuToggle.setAttribute('aria-label','Open navigation');
+    }
     lastFocusedElement=document.activeElement;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
