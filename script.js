@@ -86,3 +86,40 @@ window.addEventListener('scroll',()=>{
   const tiktok=document.querySelector('.tiktok-embed');
   if(tiktok)tiktok.setAttribute('data-embed-from','LSE Social');
 })();
+
+// Client Portal placeholder: the future Google Sites/Gmail client portal will be connected here.
+(()=>{
+  const nav=document.querySelector('.nav');
+  if(!nav||nav.querySelector('[data-client-portal]'))return;
+
+  const portalButton=document.createElement('a');
+  portalButton.href='#';
+  portalButton.className='nav-cta';
+  portalButton.dataset.clientPortal='true';
+  portalButton.textContent='Client Portal';
+  portalButton.setAttribute('aria-haspopup','dialog');
+  nav.insertBefore(portalButton,nav.querySelector('.nav-cta'));
+
+  const overlay=document.createElement('div');
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-labelledby','clientPortalTitle');
+  Object.assign(overlay.style,{position:'fixed',inset:'0',zIndex:'10000',display:'none',alignItems:'center',justifyContent:'center',padding:'24px',background:'rgba(3,17,31,.78)',backdropFilter:'blur(6px)'});
+  overlay.innerHTML='<div style="position:relative;width:min(520px,100%);background:#fff;color:#0b1c2e;padding:42px;border-top:4px solid #c99720;box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center"><button type="button" data-client-portal-close aria-label="Close client portal message" style="position:absolute;top:14px;right:16px;border:0;background:transparent;color:#667381;font-size:28px;line-height:1;cursor:pointer">×</button><p style="margin:0 0 12px;color:#c99720;font:800 11px Manrope,Arial,sans-serif;letter-spacing:.18em">LIVING SOLUTION ENGINEERING</p><h2 id="clientPortalTitle" style="margin:0 0 16px;font:800 clamp(32px,6vw,48px)/1.05 Manrope,Arial,sans-serif;letter-spacing:-.04em">Client Portal</h2><p style="margin:0 auto 24px;max-width:410px;color:#667381;font:500 15px/1.6 'DM Sans',Arial,sans-serif">Our secure client portal is coming soon. Clients will be able to access their dedicated Google Sites portal using their own Gmail address.</p><span style="display:inline-flex;padding:12px 18px;background:#061a30;color:#fff;font:800 10px 'DM Sans',Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase">Coming Soon</span></div>';
+  document.body.appendChild(overlay);
+
+  const close=()=>{
+    overlay.style.display='none';
+    document.body.style.overflow='';
+  };
+  const open=(event)=>{
+    event.preventDefault();
+    overlay.style.display='flex';
+    document.body.style.overflow='hidden';
+    overlay.querySelector('[data-client-portal-close]').focus();
+  };
+  portalButton.addEventListener('click',open);
+  overlay.querySelector('[data-client-portal-close]').addEventListener('click',close);
+  overlay.addEventListener('click',(event)=>{if(event.target===overlay)close();});
+  document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&overlay.style.display!=='none')close();});
+})();
