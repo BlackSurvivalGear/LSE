@@ -93,25 +93,50 @@ window.addEventListener('scroll',()=>{
   if(!portalButton)return;
 
   const overlay=document.createElement('div');
+  overlay.id='clientPortalModal';
+  overlay.className='client-portal-modal';
   overlay.setAttribute('role','dialog');
   overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-hidden','true');
   overlay.setAttribute('aria-labelledby','clientPortalTitle');
-  Object.assign(overlay.style,{position:'fixed',inset:'0',zIndex:'10000',display:'none',alignItems:'center',justifyContent:'center',padding:'24px',background:'rgba(3,17,31,.78)',backdropFilter:'blur(6px)'});
-  overlay.innerHTML='<div style="position:relative;width:min(520px,100%);background:#fff;color:#0b1c2e;padding:42px;border-top:4px solid #c99720;box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center"><button type="button" data-client-portal-close aria-label="Close client portal message" style="position:absolute;top:14px;right:16px;border:0;background:transparent;color:#667381;font-size:28px;line-height:1;cursor:pointer">×</button><p style="margin:0 0 12px;color:#c99720;font:800 11px Manrope,Arial,sans-serif;letter-spacing:.18em">LIVING SOLUTION ENGINEERING</p><h2 id="clientPortalTitle" style="margin:0 0 16px;font:800 clamp(32px,6vw,48px)/1.05 Manrope,Arial,sans-serif;letter-spacing:-.04em">Client Portal</h2><p style="margin:0 auto 24px;max-width:410px;color:#667381;font:500 15px/1.6 'DM Sans',Arial,sans-serif">Our secure client portal is coming soon. Clients will be able to access their dedicated Google Sites portal using their own Gmail address.</p><span style="display:inline-flex;padding:12px 18px;background:#061a30;color:#fff;font:800 10px 'DM Sans',Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase">Coming Soon</span></div>';
+  overlay.innerHTML='<div class="client-portal-card" role="document"><button type="button" class="client-portal-close" data-client-portal-close aria-label="Close client portal message">×</button><div class="client-portal-icon" aria-hidden="true"><svg viewBox="0 0 64 64" focusable="false"><rect x="15" y="23" width="34" height="25" rx="4"></rect><circle cx="32" cy="17" r="7"></circle><path d="M24 43c2-6 14-6 16 0M10 52h44"></path></svg></div><p class="client-portal-eyebrow">LIVING SOLUTION ENGINEERING</p><h2 id="clientPortalTitle">Client Portal</h2><p class="client-portal-status">Coming Soon</p><div class="client-portal-rule"></div><p class="client-portal-copy">Our secure client portal will give you access to project updates, documents and communication using your own Gmail account through Google Sites.</p><p class="client-portal-note">We’re building something great for you.</p><button type="button" class="client-portal-action" data-client-portal-close>Close</button></div>';
   document.body.appendChild(overlay);
 
+  let lastFocusedElement=null;
+  const closeButtons=overlay.querySelectorAll('[data-client-portal-close]');
   const close=()=>{
-    overlay.style.display='none';
-    document.body.style.overflow='';
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+    if(lastFocusedElement)lastFocusedElement.focus();
   };
   const open=(event)=>{
     event.preventDefault();
-    overlay.style.display='flex';
-    document.body.style.overflow='hidden';
-    overlay.querySelector('[data-client-portal-close]').focus();
+    event.stopPropagation();
+    lastFocusedElement=document.activeElement;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.classList.add('modal-open');
+    window.setTimeout(()=>overlay.querySelector('.client-portal-close').focus(),0);
   };
+
   portalButton.addEventListener('click',open);
-  overlay.querySelector('[data-client-portal-close]').addEventListener('click',close);
+  closeButtons.forEach(button=>button.addEventListener('click',close));
   overlay.addEventListener('click',(event)=>{if(event.target===overlay)close();});
-  document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&overlay.style.display!=='none')close();});
+  document.addEventListener('keydown',(event)=>{
+    if(!overlay.classList.contains('is-open'))return;
+    if(event.key==='Escape'){
+      event.preventDefault();
+      close();
+      return;
+    }
+    if(event.key==='Tab'){
+      const focusable=[...overlay.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])')];
+      if(!focusable.length)return;
+      const first=focusable[0];
+      const last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    }
+  });
 })();
