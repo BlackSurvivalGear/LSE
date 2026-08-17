@@ -9,6 +9,7 @@ if(menuToggle&&nav){
   nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
     nav.classList.remove('open');
     menuToggle.setAttribute('aria-expanded','false');
+    menuToggle.setAttribute('aria-label','Open navigation');
   }));
 }
 
