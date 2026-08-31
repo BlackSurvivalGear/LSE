@@ -59,31 +59,58 @@ window.addEventListener('scroll',()=>{
 
 (()=>{
   if(!location.pathname.endsWith('/social.html')&&!location.pathname.endsWith('social.html'))return;
+
   const frame=document.getElementById('ytVideoFrame');
   const poster=document.getElementById('ytVideoPoster');
-  if(frame&&poster){
-    const videoId=frame.getAttribute('data-video-id')||'3bxJgyWSaGM';
-    const loadIframe=()=>{
-      const iframe=document.createElement('iframe');
-      iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-      iframe.title='Solomon Building Contractor - featured video';
-      iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-      iframe.setAttribute('allowfullscreen','true');
-      iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-      iframe.style.width='100%';
-      iframe.style.height='100%';
-      iframe.style.border='0';
-      frame.innerHTML='';
-      frame.appendChild(iframe);
-    };
-    poster.addEventListener('click',loadIframe);
-    poster.addEventListener('keydown',(e)=>{
-      if(e.key==='Enter'||e.key===' '){
-        e.preventDefault();
-        loadIframe();
+  if(!frame||!poster)return;
+
+  const channelId=frame.getAttribute('data-channel-id')||'UUNOc6D_St272mk8d4IsxD8A';
+  const fallbackVideoId='3bxJgyWSaGM';
+  const channelUrl='https://www.youtube.com/@solomonbuildingcontractort9410';
+  const ytLatestUrl=`https://www.youtube.com/embed?listType=playlist&list=${encodeURIComponent(channelId)}&autoplay=1&rel=0&modestbranding=1`;
+
+  const setThumbnail=(videoId)=>{
+    const thumbnail=document.getElementById('ytThumbnail');
+    if(!thumbnail)return;
+    thumbnail.dataset.fallback='';
+    thumbnail.src=`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    thumbnail.onerror=()=>{
+      if(!thumbnail.dataset.fallback){
+        thumbnail.dataset.fallback='1';
+        thumbnail.src=`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      }else{
+        thumbnail.style.display='none';
+        const fallback=document.getElementById('ytFallbackCard');
+        if(fallback)fallback.style.display='flex';
       }
-    });
-  }
+    };
+  };
+
+  // Match the AfrOsint Map pattern: use YouTube's uploads playlist for the channel.
+  setThumbnail(fallbackVideoId);
+
+  const loadIframe=()=>{
+    const iframe=document.createElement('iframe');
+    iframe.src=ytLatestUrl;
+    iframe.title='Solomon Building Contractor - latest video';
+    iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+    iframe.setAttribute('allowfullscreen','true');
+    iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+    iframe.style.width='100%';
+    iframe.style.height='100%';
+    iframe.style.border='0';
+    frame.innerHTML='';
+    frame.appendChild(iframe);
+  };
+
+  poster.addEventListener('click',loadIframe);
+  poster.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      loadIframe();
+    }
+  });
+
   const tiktok=document.querySelector('.tiktok-embed');
   if(tiktok)tiktok.setAttribute('data-embed-from','LSE Social');
 })();
@@ -119,30 +146,19 @@ window.addEventListener('scroll',()=>{
       menuToggle.setAttribute('aria-expanded','false');
       menuToggle.setAttribute('aria-label','Open navigation');
     }
-    lastFocusedElement=document.activeElement;
+    lastFocusedElement=event.currentTarget;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
     document.body.classList.add('modal-open');
-    window.setTimeout(()=>overlay.querySelector('.client-portal-close').focus(),0);
+    const closeButton=overlay.querySelector('.client-portal-close');
+    if(closeButton)closeButton.focus();
   };
-
   portalButton.addEventListener('click',open);
   closeButtons.forEach(button=>button.addEventListener('click',close));
-  overlay.addEventListener('click',(event)=>{if(event.target===overlay)close();});
+  overlay.addEventListener('click',(event)=>{
+    if(event.target===overlay)close();
+  });
   document.addEventListener('keydown',(event)=>{
-    if(!overlay.classList.contains('is-open'))return;
-    if(event.key==='Escape'){
-      event.preventDefault();
-      close();
-      return;
-    }
-    if(event.key==='Tab'){
-      const focusable=[...overlay.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])')];
-      if(!focusable.length)return;
-      const first=focusable[0];
-      const last=focusable[focusable.length-1];
-      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
-      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
-    }
+    if(event.key==='Escape'&&overlay.classList.contains('is-open'))close();
   });
 })();
